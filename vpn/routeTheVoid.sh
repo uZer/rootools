@@ -1,17 +1,34 @@
 #! /bin/bash
 #
-# Add a new route table and redirect trafic through the VPN interface
-# using iproute2 and iptables trafic labels. Generic configuration using
-# /etc/openvpn/<vpnName> in order to discover network settings
+# Add a new route table and redirect traffic through the VPN interface
+# using iproute2 and iptables traffic labels. Generic configuration using
+# /etc/openvpn/<vpnName> and syslogs in order to discover network settings.
+# Shoddy work :P
 #
 # Syntax:
 # ./routeTheVoid.sh <vpnName>
+# ./routeTheVoid.sh stop
+
+##############
+# CHECK ARGS #
+##############
+
+# Quit message
+die () {
+    echo >&2 "$@"
+    exit 1
+}
+
+[ "$#" -eq 1 ] || die "This script requires 1 argument"
+
+vpnname=$1
+vpnconf="/etc/openvpn/$vpnname.conf"
+
+
 
 ############
 # VARIABLE #
 ############
-vpnname=$1
-vpnconf="/etc/openvpn/$vpnname.conf"
 logfile="/var/log/syslog"
 
 # Only takes the first remote
@@ -34,6 +51,7 @@ labelnum=10
 # SUMMARY #
 ###########
 
+echo "SETTINGS SUMMARY"
 echo "VPN config file: $vpnconf"
 echo "VPN log file: $logfile"
 echo "VPN remote server: $vpnserver"
@@ -43,39 +61,61 @@ echo "Tunnel gateway: $tunnelgw"
 echo "Tunnel interface: $tunnelint"
 echo "Tunnel IP: $tunnelip"
 echo "Table number: $tablenum"
+echo ""
 
 #################
 # CONFIGURATION #
 #################
 
-# Cleanning up things
-echo "Flushing old tables..."
+echo "Flushing old things..."
 sudo ip route flush table $tablenum > /dev/null 2>&1
 sudo iptables -t nat -D POSTROUTING -m mark --mark $labelnum -o $tunnelint ! -s $tunnelip -j SNAT --to-source $tunnelip > /dev/null 2>&1
 sudo iptables -t mangle -D OUTPUT -p $vpnproto --dport $vpnport -j RETURN > /dev/null 2>&1
 sudo iptables -t mangle -D OUTPUT -j MARK --set-mark $labelnum > /dev/null 2>&1
 
-# Create a copy of the main route table removing default route
-echo "Create the new route table..."
+# If $1 is "stop" then quit, we just want to flush things.
+# Don't you dare calling your VPN "stop". TODO: stop coding like a tool
+if [ $1 = stop ]; then
+    die "Done flushing."
+fi
+
+# Let's work
+echo "Create a copy of the main route table removing default route"
 ip route show table main | grep -Ev '^default via ' | while read entry; do
     sudo ip route add table $tablenum $entry;
 done
 
-# Set the tunnel as the default route
-echo "New default gateway..."
+echo "Set the tunnel as the default route"
 sudo ip route add table $tablenum default via $tunnelgw dev $tunnelint
 
-# Route marked paquets with our new VRF
-echo "Mark traffic..."
+echo "Route marked paquets with our new route table"
 sudo ip rule add fwmark $labelnum table $tablenum
 
 echo "Conditional routing..."
-# Mark output trafic with labelnum except the trafic to the vpnserver itself
+
+echo "Mark output traffic with label $labelnum except the traffic to $vpnserver"
 sudo iptables -t mangle -A OUTPUT -p $vpnproto --dport $vpnport -j RETURN
 sudo iptables -t mangle -A OUTPUT -j MARK --set-mark $labelnum
 
-echo "and finally, NAT"
-# Source nat before putting trafic in the tunnel
+echo "Source NAT before putting traffic in the tunnel"
 sudo iptables -t nat -A POSTROUTING -m mark --mark $labelnum -o $tunnelint ! -s $tunnelip -j SNAT --to-source $tunnelip
+
+###############
+# PRINT STUFF #
+###############
+
+echo ""
+echo "DONE!"
+sudo ip route show table $tablenum
+echo ""
+echo "NAT table:"
+sudo iptables -t nat -L | grep $tunnelint
+echo ""
+echo "Conditional routing:"
+sudo iptables -t mangle -L | grep "-A OUTPUT"
+echo ""
+echo "Your default traffic is now routed through interface $tunnelint."
+echo "You can stop this with the following command:"
+echo "$0 stop"
 
 exit 0
