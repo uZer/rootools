@@ -50,7 +50,10 @@ echo "Table number: $tablenum"
 
 # Cleanning up things
 echo "Flushing old tables..."
-sudo ip route flush table $tablenum
+sudo ip route flush table $tablenum > /dev/null 2>&1
+sudo iptables -t nat -D POSTROUTING -m mark --mark $labelnum -o $tunnelint ! -s $tunnelip -j SNAT --to-source $tunnelip > /dev/null 2>&1
+sudo iptables -t mangle -D OUTPUT -p $vpnproto --dport $vpnport -j RETURN > /dev/null 2>&1
+sudo iptables -t mangle -D OUTPUT -j MARK --set-mark $labelnum > /dev/null 2>&1
 
 # Create a copy of the main route table removing default route
 echo "Create the new route table..."
