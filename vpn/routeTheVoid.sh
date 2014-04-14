@@ -33,7 +33,7 @@ doFlush () {
 # SUMMARY
 summary () {
     echo -e "\e[1mSETTINGS SUMMARY\e[0m"
-    [[ $flush ]] && echo -e "\e[32mVPN config file:\e[39m       $vpnconf"
+    echo -e "\e[32mVPN config file:\e[39m       $vpnconf"
     echo -e "\e[32mVPN log file:\e[39m          $logfile"
     echo
     echo -e "\e[32mVPN remote server:\e[39m     $vpnserver"
