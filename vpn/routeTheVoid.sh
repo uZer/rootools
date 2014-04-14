@@ -26,7 +26,7 @@ doFlush () {
     echo "Flushing nat, marks and routes"
     sudo ip route flush table $tablenum > /dev/null 2>&1
     sudo iptables -t nat -D POSTROUTING -m mark --mark $labelnum -o $tunnelint ! -s $tunnelip -j SNAT --to-source $tunnelip > /dev/null 2>&1
-    sudo iptables -t mangle -D OUTPUT -p $vpnproto --dport $vpnport -j RETURN > /dev/null 2>&1
+    sudo iptables -t mangle -D OUTPUT -p $vpnproto -d $vpnserver --dport $vpnport -j RETURN > /dev/null 2>&1
     sudo iptables -t mangle -D OUTPUT -j MARK --set-mark $labelnum > /dev/null 2>&1
 }
 
@@ -70,7 +70,7 @@ postsummary () {
 
 doConfigure () {
     echo -e "\e[34m[1/5]\e[39m Building a copy of the main route table removing default route..."
-    ip route show table main | grep -Ev '^default via ' | grep -Ev $tunnelint | while read entry; do
+    ip route show table main | grep -Ev '^default via ' | while read entry; do
         ip route add table $tablenum $entry;
     done
     echo -e "\e[34m[2/5]\e[39m Setting the tunnel as the default route..."
