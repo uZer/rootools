@@ -4,10 +4,6 @@
 # using iproute2 and iptables traffic labels. Generic configuration using
 # /etc/openvpn/<vpnName> and syslogs in order to discover network settings.
 # Shoddy work :P
-#
-# Syntax:
-# ./routeTheVoid.sh <vpnName> add
-# ./routeTheVoid.sh <vpnName> flush
 
 # QUIT MESSAGE (error)
 die () {
