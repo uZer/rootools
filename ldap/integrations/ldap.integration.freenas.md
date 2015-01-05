@@ -2,6 +2,7 @@
 These instructions work perfectly with FreeNAS-9.3-STABLE-201412312006. I hope
 it will work on your setup.
 
+### SETTINGS
 Basic configuration
 
 	hostname:               hostname.of.your.ldap.com
@@ -63,11 +64,24 @@ syntax that doesn't work but will produce NO error output.
 	
 	ldap_schema = rfc2307
 
-_Additional Information_
+### Additional Information
 You may not want to create any user in your FreeNAS web interface and use LDAP
 directory instead. I highly suggest the usage of LAM (LDAP Account Manager) for
 your user administration. This tool is opensource, native in most distributions
 and  works perfectly if you want to build a CIFS Domain Controler for example.
 
-If you have any question, don't ask me. I'm not expert :)
+You may still have to use NAS's webconfiguration page to create shares. More
+information about thismay appear here sooner or later.
 
+Good debug tools:
+
+	[root@freenas] ~# getent group
+	[root@freenas] ~# getent passwd
+	[root@freenas] ~# tail -f /var/log/syslog
+	[root@freenas] ~# tail -f /var/log/samba4/*
+	[root@freenas] ~# cat /etc/local/smb4.conf
+	[root@freenas] ~# cat /etc/nsswitch.conf 
+	[root@freenas] ~# cat /etc/local/sssd/sssd.conf <-- And compare this
+							    to a working config
+
+	Your ldap logs.
