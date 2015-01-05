@@ -1,0 +1,4 @@
+dn: olcDatabase={1}hdb,cn=config
+delete: olcAccess
+olcAccess: {2}
+olcAccess: {3}

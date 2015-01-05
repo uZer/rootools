@@ -1,0 +1,4 @@
+dn: cn=config
+changetype: modify
+add: olcTLSCipherSuite
+olcTLSCipherSuite: SECURE256:-VERS-SSL3.0
