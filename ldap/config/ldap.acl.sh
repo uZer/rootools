@@ -13,13 +13,13 @@ replace: olcAccess
 olcAccess: {0}to attrs=userPassword,shadowLastChange
   by self write
   by anonymous auth
-  by dn="cn=admin,dc=fr-1vm-sso01,dc=infra,dc=msv" write
-  by dn="cn=lam,ou=ldapusers,dc=fr-1vm-sso01,dc=infra,dc=msv" write
+  by dn="cn=admin,dc=ldap01,dc=lan" write
+  by dn="cn=lam,ou=ldapusers,dc=ldap01,dc=lan" write
   by users none
   by * none
 olcAccess: {1}to *
-  by dn="cn=admin,dc=fr-1vm-sso01,dc=infra,dc=msv" write
-  by dn="cn=lam,ou=ldapusers,dc=fr-1vm-sso01,dc=infra,dc=msv" write
+  by dn="cn=admin,dc=ldap01,dc=lan" write
+  by dn="cn=lam,ou=ldapusers,dc=ldap01,dc=lan" write
   by users read
   by * none
 EOF
