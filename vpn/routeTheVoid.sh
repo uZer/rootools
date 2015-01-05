@@ -3,7 +3,7 @@
 # Add a new route table and redirect traffic through the VPN interface
 # using iproute2 and iptables traffic labels. Generic configuration using
 # /etc/openvpn/<vpnName> and syslogs in order to discover network settings.
-# Shoddy work :P
+# Shoddy work :P Uses system log files... don't do this at home!
 
 # QUIT MESSAGE (error)
 die () {
