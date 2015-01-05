@@ -81,7 +81,6 @@ Good debug tools:
 	[root@freenas] ~# tail -f /var/log/samba4/*
 	[root@freenas] ~# cat /etc/local/smb4.conf
 	[root@freenas] ~# cat /etc/nsswitch.conf 
-	[root@freenas] ~# cat /etc/local/sssd/sssd.conf <-- And compare this
-							    to a working config
+	[root@freenas] ~# cat /etc/local/sssd/sssd.conf <-- And compare this to a working config
 
-	Your ldap logs.
+	And obviously : your ldap logs.
