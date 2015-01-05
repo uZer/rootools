@@ -11,7 +11,7 @@ Basic configuration
 If you have a specific user you want to bind for searching your LDAP (which I
 highly recommand) use these two lines.
 
-	Bind DN:                cn=freenas,ou=ldapusers,dc=fr-1vm-sso01,dc=infra,dc=msv
+	Bind DN:                cn=freenas,ou=ldapusers,dc=ldap,dc=lan
 	Bind password:          *********
 
 Otherwise, you can tick the anonymous box.
