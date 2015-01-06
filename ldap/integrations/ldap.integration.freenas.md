@@ -9,15 +9,15 @@ Basic configuration
 	Base DN:                dc=ldap,dc=lan
 
 If you have a specific user you want to bind for searching your LDAP (which I
-highly recommand) use these two lines.
+highly recommand) you should use these two lines.
 
 	Bind DN:                cn=freenas,ou=ldapusers,dc=ldap,dc=lan
 	Bind password:          *********
 
 Otherwise, you can tick the anonymous box.
 
-Then, identify the location of your LDAP elements. You don't need to append
-the Base DN here.
+Next, configure the location of your LDAP elements for FreeNAS. You don't need
+to append the Base DN here.
 
 	User Suffix:            ou=people
 	Group Suffix:           ou=groups
@@ -30,10 +30,11 @@ certificate if you use self signed certificates. *Don't* disable the
 verification as you will read on Internet. This would highly reduce the security
 of your encryption since anyone could claim being the LDAP server.
 To import your ca-certificate.pem you can go to System > CAs > Import CA.
-If your FreeNAS is NOT the CA, don't put the Private Key in the import form.
+If your FreeNAS is NOT the CA, remember not to put the Private Key in the import
+form.
 
 	Encryption Mode:        TLS
-	Certificate:            <select>
+	Certificate:            <select> <-- Once imported, certificate should appear here
 
 Welcome to the fun part. If you don't configure this correctly, you may have to
 enjoy hours of troubleshooting with minimum logging.
@@ -60,10 +61,10 @@ only primary group was visible. Forcing backend in aux params did the trick
 If you have samba schema installed. Please refer to schema importation methods
 in my LDAP cheatsheet folder.
 
-This will do the magic in Auxiliary Parameters (these instructions will be
-written in your system's sssd.conf). Don't trust what you can read on the
-Internet. I saw tons of forums suggesting other settings with a different
-syntax that doesn't work, but that produce NO error output.
+This will do the magic as Auxiliary Parameters (instructions that will be
+written in your system's sssd.conf). Please, don't trust what you can read on
+the Internet. I saw tons of forums suggesting other settings with a different
+syntax that doesn't work, but produces NO error output.
 
 	ldap_schema = rfc2307
 
