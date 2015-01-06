@@ -2,32 +2,50 @@
 #
 # Change verbosity of logs
 
+## Please configure this before to start
+DN='dc=thecore,dc=thevoid'
+BACKEND='olcDatabase={1}mdb'
+
+## Read existing ACL
+## Change with the correct backend : HDB/MDB/BDB
+echo "Existing situation :"
+sudo ldapsearch -LLLQY EXTERNAL -H ldapi:/// -b cn=config -s base olcLogLevel
+
 ## Create a ldif file
 ##
 ## Cf. http://www.openldap.org/doc/admin24/slapdconf2.html
 ##
-## LEVEL	KEYWORD		DESCRIPTION
-## -1		any		enable all debugging
-## 0		 		no debugging
-## 1		(0x1 trace)	trace function calls
-## 2		(0x2 packets)	debug packet handling
-## 4		(0x4 args)	heavy trace debugging
-## 8		(0x8 conns)	connection management
-## 16		(0x10 BER)	print out packets sent and received
-## 32		(0x20 filter)	search filter processing
-## 64		(0x40 config)	configuration processing
-## 128		(0x80 ACL)	access control list processing
-## 256		(0x100 stats)	stats log connections/operations/results
-## 512		(0x200 stats2)	stats log entries sent
-## 1024		(0x400 shell)	print communication with shell backends
-## 2048		(0x800 parse)	print entry parsing debugging
-## 16384	(0x4000 sync)	syncrepl consumer processing
-## 32768	(0x8000 none)	only messages that get logged whatever log level is set
-cat > ldap.logging.change.ldif << EOF
+## LEVEL        DESCRIPTION
+## trace	    trace function calls
+## packets	    debug packet handling
+## args	        heavy trace debugging
+## conns	    connection management
+## BER	        print out packets sent and received
+## filter	    search filter processing
+## config	    configuration processing
+## ACL	        access control list processing
+## stats	    stats log connections/operations/results
+## stats2	    stats log entries sent
+## shell	    print communication with shell backends
+## parse	    print entry parsing debugging
+## sync	        syncrepl consumer processing
+## none	        only messages that get logged whatever log level is set
+cat > ldap.logging.modify.ldif << EOF
 dn: cn=config
 changetype: modify
 add: olcLogLevel
 olcLogLevel: stats
 EOF
 
-## Apply
+cat > ldap.logging.delete.ldif << EOF
+dn: cn=config
+changetype: modify
+delete: olcLogLevel
+EOF
+
+## Apply changes
+echo "Please edit ldif file according to your needs."
+echo "slapd may puke logs in /var/log/syslog by default."
+echo
+echo "To apply your changes:"
+echo sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f ldap.logging.modify.ldif
