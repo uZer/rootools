@@ -4,6 +4,7 @@ FQDN="test"
 PKIDIR="/srv/pki-infra.msv-intermediate"
 CAKEY="private/ca-intermediate.infra.msv-key.pem"
 CACERT="certs/ca-intermediate.infra.msv-cert.pem"
+CACRL="crl/ca-intermediate.infra.msv-crl.pem"
 EXPORTDIR="$PKIDIR/exports"
 SIZE="4096"
 
@@ -12,6 +13,27 @@ cd $PKIDIR
 ###################
 ## HELP & PARAMS ##
 ###################
+display_help()
+{
+    cat <<EOF
+Usage: ./$0 OPTIONS <full.qualified.domain.name>
+
+$0 is a wrapper for openssl (just like EasyRSA) for simple and generic usage.
+Choose an action to perform and the fqdn you want to use.
+
+ACTIONS:
+    -h              Display this message
+
+    -s <FQDN>       Gen and sign certificate and private key for domain <FQDN>
+    -p <FQDN>       Export package for <FQDN> (KEY, CERT, CSR)
+    -c <FQDN>       Check certificate of <FQDN>
+
+    -r <FQDN>       Revoke certificate of <FQDN>
+    -u              Update revocation list
+
+EOF
+    exit 0
+}
 
 ######################
 ## SIGNATURE MODULE ##
@@ -54,3 +76,14 @@ openssl x509 -in certs/$FQDN-cert.pem
 
 # Verify signature
 openssl verify -CAfile $CACERT certs/$FQDN-cert.pem
+
+###################
+## REVOKE MODULE ##
+###################
+openssl ca -keyfile $CAKEY -cert $CACERT -revoke certs/$FQDN-cert.pem
+
+####################
+## CRL GENERATION ##
+####################
+openssl ca  -keyfile $CAKEY -cert $CACERT -gencrl -out $CACRL
+openssl crl -text -in $CACRL
