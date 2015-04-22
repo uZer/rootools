@@ -6,6 +6,7 @@ DOMAIN="infra.msv"
 PKIDIR="/srv/pki-$DOMAIN-intermediate"
 CAKEY="private/ca-intermediate.$DOMAIN-key.pem"
 CACERT="certs/ca-intermediate.$DOMAIN-cert.pem"
+CACHAIN="certs/ca-chain.$DOMAIN-cert.pem"
 CACRL="crl/ca-intermediate.$DOMAIN-crl.pem"
 CACRLDISTRIBUTION="URI:http://ssl.infra.msv/$CACRL"
 EXPORTDIR="$PKIDIR/exports"
@@ -101,7 +102,7 @@ check_crt()
     openssl x509 -in certs/$1.$DOMAIN-cert.pem
 
     # Verify signature
-    openssl verify -CAfile $CACERT certs/$1.$DOMAIN-cert.pem
+    openssl verify -CAfile $CACHAIN certs/$1.$DOMAIN-cert.pem
     return
 }
 
