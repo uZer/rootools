@@ -9,6 +9,10 @@ CACERT="certs/ca-intermediate.$DOMAIN-cert.pem"
 CACRL="crl/ca-intermediate.$DOMAIN-crl.pem"
 CACRLDISTRIBUTION="URI:http://ssl.infra.msv/$CACRL"
 EXPORTDIR="$PKIDIR/exports"
+COUNTRY="FR"
+PROVINCE="IDF"
+LOCATION="Paris"
+ORG="Mediaserv"
 SIZE="4096"
 
 ## HELP & PARAMS ##
@@ -50,11 +54,11 @@ gen_sign_cert()
 
     # Certification request
     openssl req \
-        -config ./openssl.cnf \
         -sha256 -new \
         -key private/$1.$DOMAIN-key.pem \
         -out certs/$1.$DOMAIN-csr.pem \
-        -subj "/CN=$1.$DOMAIN"
+        -subj "/C=$COUNTRY/ST=$PROVINCE/L=$LOCATION/CN=$1.$DOMAIN/O=$ORG" \
+        -config ./openssl.cnf
 
     # Make the CA sign the certificate
     openssl ca \
@@ -106,7 +110,9 @@ check()
 gen_crl() {
     echo "========= Generating CRL list of revoked certificates  ========="
     echo ""
-    openssl ca -keyfile $CAKEY -cert $CACERT -gencrl -out $CACRL
+    openssl ca \
+        -keyfile $CAKEY -cert $CACERT -gencrl -out $CACRL \
+        -subj "/C=$COUNTRY/ST=$PROVINCE/L=$LOCATION/CN=$1.$DOMAIN/O=$ORG"
     openssl crl -text -in $CACRL
     echo "CRL list of revoked certificates has been generated in $CACRL"
     echo "You can use the following URL in your configuration files:"
