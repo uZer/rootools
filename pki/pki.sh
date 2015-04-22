@@ -45,6 +45,7 @@ cd $PKIDIR
 # Create private key
 gen_sign_cert()
 {
+    [[ ! -e certs/$1.$DOMAIN-key.pem ]] && echo "Keyfile already exists" && exit 3
     openssl genrsa -out private/$1.$DOMAIN-key.pem $SIZE
 
     # Certification request
@@ -52,7 +53,8 @@ gen_sign_cert()
         -config ./openssl.cnf \
         -sha256 -new \
         -key private/$1.$DOMAIN-key.pem \
-        -out certs/$1.$DOMAIN-csr.pem
+        -out certs/$1.$DOMAIN-csr.pem \
+        -subj "/CN=$1.$DOMAIN"
 
     # Make the CA sign the certificate
     openssl ca \
@@ -88,6 +90,7 @@ gen_tarball()
 #####################
 check()
 {
+    [[ ! -e certs/$1.$DOMAIN-cert.pem ]] && echo "Cert doesn't exist" && exit 3
     echo "========= Verification of certificate $1.$DOMAIN-cert ========="
     echo ""
     # Vertify issuer
@@ -115,6 +118,7 @@ gen_crl() {
 ###################
 revoke()
 {
+    [[ ! -e certs/$1.$DOMAIN-cert.pem ]] && echo "Cert doesn't exist" && exit 3
     echo "========= Revocation of certificate  $1.$DOMAIN-cert  ========="
     echo ""
     # SSL revocation
