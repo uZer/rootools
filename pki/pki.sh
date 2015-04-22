@@ -45,7 +45,7 @@ cd $PKIDIR
 # Create private key
 gen_sign_cert()
 {
-    [[ ! -e certs/$1.$DOMAIN-key.pem ]] && echo "Keyfile already exists" && exit 3
+    [[ ! -e certs/$1.$DOMAIN-cert.pem ]] && echo "Cert already exists" && exit 3
     openssl genrsa -out private/$1.$DOMAIN-key.pem $SIZE
 
     # Certification request
