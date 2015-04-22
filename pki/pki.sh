@@ -86,13 +86,13 @@ gen_tarball()
         private/$1.$DOMAIN-key.pem \
         certs/ca-chain.$DOMAIN-cert.pem
     chmod 400 $EXPORTDIR/$1.$DOMAIN.tar.gz
-    echo "Tarball exported on: $PKIDIR/$EXPORTDIR/$1.$DOMAIN.tar.gz"
+    echo "Tarball exported on: $EXPORTDIR/$1.$DOMAIN.tar.gz"
     return
 }
 
 ## CHECKING MODULE ##
 #####################
-check()
+check_crt()
 {
     [[ ! -e certs/$1.$DOMAIN-cert.pem ]] && echo "Cert doesn't exist" && exit 3
     echo "========= Verification of certificate $1.$DOMAIN-cert ========="
@@ -139,7 +139,8 @@ while getopts ":hs:p:c:r:u" OPT; do
     case $OPT in
         h)  display_help;;
         s)  gen_sign_cert ${OPTARG};;
-        c)  gen_tarball ${OPTARG};;
+        p)  gen_tarball ${OPTARG};;
+        c)  check_crt ${OPTARG};;
         r)  revoke ${OPTARG};;
         u)  gen_crl;;
 
