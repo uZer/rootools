@@ -1,89 +1,146 @@
 #!/bin/sh
 # Sign and revoke certificates
-FQDN="test"
-PKIDIR="/srv/pki-infra.msv-intermediate"
-CAKEY="private/ca-intermediate.infra.msv-key.pem"
-CACERT="certs/ca-intermediate.infra.msv-cert.pem"
-CACRL="crl/ca-intermediate.infra.msv-crl.pem"
+
+## CHANGE ME ##
+DOMAIN="infra.msv"
+PKIDIR="/srv/pki-$DOMAIN-intermediate"
+CAKEY="private/ca-intermediate.$DOMAIN-key.pem"
+CACERT="certs/ca-intermediate.$DOMAIN-cert.pem"
+CACRL="crl/ca-intermediate.$DOMAIN-crl.pem"
+CACRLDISTRIBUTION="URI:http://ssl.infra.msv/$CACRL"
 EXPORTDIR="$PKIDIR/exports"
 SIZE="4096"
 
-cd $PKIDIR
-
-###################
 ## HELP & PARAMS ##
 ###################
 display_help()
 {
     cat <<EOF
-Usage: ./$0 OPTIONS <full.qualified.domain.name>
+Usage: ./$0 OPTIONS <hostname-without-domain>
 
-$0 is a wrapper for openssl (just like EasyRSA) for simple and generic usage.
-Choose an action to perform and the fqdn you want to use.
+$0 is a light wrapper for openssl (just like EasyRSA) for simple and generic
+Usage. Choose an action to perform and the fqdn you want to use.
 
 ACTIONS:
-    -h              Display this message
+    -h                Display this message
 
-    -s <FQDN>       Gen and sign certificate and private key for domain <FQDN>
-    -p <FQDN>       Export package for <FQDN> (KEY, CERT, CSR)
-    -c <FQDN>       Check certificate of <FQDN>
+    -s <HOSTNAME>     Gen and sign certificate and private key for domain <FQDN>
+    -p <HOSTNAME>     Export package for <FQDN> (KEY, CERT, CSR)
+    -c <HOSTNAME>     Check certificate of <FQDN>
 
-    -r <FQDN>       Revoke certificate of <FQDN>
-    -u              Update revocation list
+    -r <HOSTNAME>     Revoke certificate of <FQDN>
+    -u                Update revocation list
 
 EOF
     exit 0
 }
 
-######################
+# No args
+[[ $# -eq 0 ]] && display_help
+[[ ! -d $PKIDIR ]] && echo "No such dir: $PKIDIR" && exit 1
+cd $PKIDIR
+
 ## SIGNATURE MODULE ##
 ######################
 # Create private key
-openssl genrsa -out private/$FQDN-key.pem $SIZE
+gen_sign_cert()
+{
+    openssl genrsa -out private/$1.$DOMAIN-key.pem $SIZE
 
-# Certification request
-openssl req \
-    -config ./openssl.cnf
+    # Certification request
+    openssl req \
+        -config ./openssl.cnf
     -sha256 -new \
-    -key private/$FQDN-key.pem \
-    -out certs/$FQDN-csr.pem
+        -key private/$1.$DOMAIN-key.pem \
+        -out certs/$1.$DOMAIN-csr.pem
 
-# Make the CA sign the certificate
-openssl ca \
-    -keyfile $CAKEY \
-    -cert $CACERT \
-    -extensions usr_cert -notext -md sha256 \
-    -in certs/$FQDN-csr.pem \
-    -out certs/$FQDN-cert.pem
+    # Make the CA sign the certificate
+    openssl ca \
+        -keyfile $CAKEY \
+        -cert $CACERT \
+        -extensions usr_cert -notext -md sha256 \
+        -in certs/$1.$DOMAIN-csr.pem \
+        -out certs/$1.$DOMAIN-cert.pem
 
-# Cleaning and security
-chmod 400 private/$FQDN-key.pem
-chmod 444 certs/$FQDN-cert.pem
+    # Cleaning and security
+    chmod 400 private/$1.$DOMAIN-key.pem
+    chmod 444 certs/$1.$DOMAIN-cert.pem
+}
 
-######################
 ## PACKAGING MODULE ##
 ######################
-tar cvzf $EXPORTDIR/$FQDN.tar.gz \
-    certs/$FQDN-cert.pem
-    certs/$FQDN-csr.pem
-    private/$FQDN-key.pem
+gen_tarball()
+{
+    echo "========= Packing certificate bundle for $1.$DOMAIN   ========="
+    echo ""
+    tar cvzf $EXPORTDIR/$1.$DOMAIN.tar.gz \
+        certs/$1.$DOMAIN-cert.pem \
+        certs/$1.$DOMAIN-csr.pem \
+        private/$1.$DOMAIN-key.pem \
+        certs/ca-chain.$DOMAIN-cert.pem
+    chmod 400 $EXPORTDIR/$1.$DOMAIN.tar.gz
+    echo "Tarball exported on: $PKIDIR/$EXPORTDIR/$1.$DOMAIN.tar.gz"
+    return
+}
 
-#####################
 ## CHECKING MODULE ##
 #####################
-# Vertify issuer
-openssl x509 -in certs/$FQDN-cert.pem
+check()
+{
+    echo "========= Verification of certificate $1.$DOMAIN-cert ========="
+    echo ""
+    # Vertify issuer
+    openssl x509 -in certs/$1.$DOMAIN-cert.pem
 
-# Verify signature
-openssl verify -CAfile $CACERT certs/$FQDN-cert.pem
+    # Verify signature
+    openssl verify -CAfile $CACERT certs/$1.$DOMAIN-cert.pem
+    return
+}
 
-###################
-## REVOKE MODULE ##
-###################
-openssl ca -keyfile $CAKEY -cert $CACERT -revoke certs/$FQDN-cert.pem
-
-####################
 ## CRL GENERATION ##
 ####################
-openssl ca  -keyfile $CAKEY -cert $CACERT -gencrl -out $CACRL
-openssl crl -text -in $CACRL
+gen_crl() {
+    echo "========= Generating CRL list of revoked certificates  ========="
+    echo ""
+    openssl ca -keyfile $CAKEY -cert $CACERT -gencrl -out $CACRL
+    openssl crl -text -in $CACRL
+    echo "CRL list of revoked certificates has been generated in $CACRL"
+    echo "You can use the following URL in your configuration files:"
+    echo "crlDistributionPoints = $CACRLDISTRIBUTION"
+    return
+}
+
+## REVOKE MODULE ##
+###################
+revoke()
+{
+    echo "========= Revocation of certificate  $1.$DOMAIN-cert  ========="
+    echo ""
+    # SSL revocation
+    openssl ca -keyfile $CAKEY -cert $CACERT -revoke certs/$1.$DOMAIN-cert.pem
+    echo "Certificate has been revoked."
+    gen_crl
+    return
+}
+
+# getopts
+while getopts ":hs:p:c:r:u" OPT; do
+    case $OPT in
+        h)  display_help;;
+        s)  gen_sign_cert ${OPTARG};;
+        c)  gen_tarball ${OPTARG};;
+        r)  revoke ${OPTARG};;
+        u)  gen_crl;;
+
+        ?)
+            echo "Invalid option: -$OPTARG" >&2
+            exit 1
+            ;;
+        :)
+            echo "Option -$OPTARG requires an argument." >&2
+            exit 2
+            ;;
+    esac
+done
+shift `expr $OPTIND - 1`
+
