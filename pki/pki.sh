@@ -1,5 +1,8 @@
 #!/bin/bash
 # Sign and revoke certificates
+#
+# Author: Youenn Piolet
+# <piolet.y@gmail.com>
 
 ## CHANGE ME ##
 DOMAIN="infra.msv"
@@ -13,7 +16,7 @@ EXPORTDIR="$PKIDIR/exports"
 COUNTRY="FR"
 PROVINCE="IDF"
 LOCATION="Paris"
-ORG="Mediaserv"
+ORG="Orgname"
 SIZE="4096"
 
 ## HELP & PARAMS ##
