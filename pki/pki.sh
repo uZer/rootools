@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Sign and revoke certificates
 
 ## CHANGE ME ##
@@ -49,8 +49,8 @@ gen_sign_cert()
 
     # Certification request
     openssl req \
-        -config ./openssl.cnf
-    -sha256 -new \
+        -config ./openssl.cnf \
+        -sha256 -new \
         -key private/$1.$DOMAIN-key.pem \
         -out certs/$1.$DOMAIN-csr.pem
 
@@ -65,6 +65,7 @@ gen_sign_cert()
     # Cleaning and security
     chmod 400 private/$1.$DOMAIN-key.pem
     chmod 444 certs/$1.$DOMAIN-cert.pem
+    return
 }
 
 ## PACKAGING MODULE ##
