@@ -1,4 +1,10 @@
-SPATH="/etc/apache2/nssdb"
+#!/bin/sh
+#
+# Generate nssdb Database
+# Import service certificate
+
+## VARIABLES
+NSSPATH="/etc/apache2/nssdb"
 PWDFILE="$NSSPATH/pwdfile.txt"
 
 CAFILE="/etc/ipa/ca.crt"
