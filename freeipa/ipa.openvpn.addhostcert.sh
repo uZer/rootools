@@ -1,5 +1,7 @@
 #!/bin/bash
 # Create and pack client openvpn configuration for a specific host
+# WARNING: Your user should have a valid kerberos token
+# and have the permission to add a host to a service.
 set -euo pipefail
 IFS=$'\n\t'
 
