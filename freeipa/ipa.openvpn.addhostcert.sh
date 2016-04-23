@@ -163,6 +163,7 @@ createTarball()
 ## SEND BY EMAIL
 sendTheStuff()
 {
+    echo "Let's send this by email..."
     mail -a ${_OUTPUT} \
         -s "[${_REALM}] OpenVPN Certificates for ${_USER}'s ${_HOST}" \
         ${_EMAIL} << EOF
@@ -176,6 +177,9 @@ les routes que tes petits copains du réseau vont t'envoyer.
 alé @+
 
 EOF
+    echo "Done!"
+    echo "wow such zipball"
+    echo "${_OUTPUT}"
     return
 }
 
