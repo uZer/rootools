@@ -8,7 +8,7 @@ IFS=$'\n\t'
 ## PARAMS
 _USER=${1:-}
 _HOST=${2:-}
-_IP=${3:-172.16.42.20}
+_IP=${3:-}
 _REALM=${4:-void}
 _EMAIL=${5:-`cat ~/.email`}
 
@@ -18,8 +18,8 @@ _OUTPUT="/srv/ipa-openvpn-pki/${_REALM}/${_REALM}.${_USER}/${_HOST}.zip"
 _SOURCECA="/etc/ipa/ca.crt"
 
 ## OPENVPN CONFIG
-_VPNHOST='dans.tesfess.es'
-_VPNPORT=1194
+_VPNHOST='tesfess.es'
+_VPNPORT=443
 _VPNPROTOCOL='udp'
 _CA="${_REALM}-ca.crt"
 _CERT="${_HOST}.${_REALM}.crt"
@@ -37,7 +37,7 @@ Create a certificate and openvpn configuration for user's computer.
 The user doesn't have to be a FreeIPA user.
 An email can be sent to the user if needed.
 
-Example: $0 ypiolet abygaelle5 172.16.42.10 infra.msv admin@tesfess.es
+Example: $0 uZer shibs-computer 172.18.42.10 tesfess.es admin@tesfess.es
 
 EOF
 
