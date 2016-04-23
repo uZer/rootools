@@ -145,7 +145,7 @@ createTarball()
     done;
 
     echo "Compressing files..."
-    zip -r ${_OUTPUT} -i ${_INPUT}/
+    zip -r ${_OUTPUT} -j ${_INPUT}/*
 
     # Check if it's cool.
     if [[ -f ${_OUTPUT} ]]; then
@@ -196,7 +196,7 @@ EOF
 confirm "Is this correct? [y/N]" && {
     echo ""
     mkdir -p ${_INPUT} 2>&1>/dev/null
-    #createCertificates
+    createCertificates
     createConfigFiles
     createTarball
     sendTheStuff
