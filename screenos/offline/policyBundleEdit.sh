@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/zsh
 #
 # Youenn Piolet
 # <piolet.y@gmail.com>
@@ -51,7 +51,7 @@ EOF
 COMMAND=$@
 
 # No args
-[[ $# -eq 0 ]] && display_help
+if [[ $# -eq 0 ]]; then display_help; fi
 
 # getopts
 while getopts ":hf:i:s:d:p:ln:" OPT; do

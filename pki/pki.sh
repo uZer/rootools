@@ -6,11 +6,11 @@
 
 ## CHANGE ME ##
 DOMAIN="infra.msv"
-PKIDIR="/srv/pki-$DOMAIN-intermediate"
-CAKEY="private/ca-intermediate.$DOMAIN-key.pem"
-CACERT="certs/ca-intermediate.$DOMAIN-cert.pem"
+PKIDIR="/srv/pki-$DOMAIN-root"
+CAKEY="private/ca-root.$DOMAIN-key.pem"
+CACERT="certs/ca-root.$DOMAIN-cert.pem"
 CACHAIN="certs/ca-chain.$DOMAIN-cert.pem"
-CACRL="crl/ca-intermediate.$DOMAIN-crl.pem"
+CACRL="crl/ca-root.$DOMAIN-crl.pem"
 CACRLDISTRIBUTION="URI:http://ssl.infra.msv/$CACRL"
 EXPORTDIR="$PKIDIR/exports"
 COUNTRY="FR"
@@ -24,21 +24,22 @@ SIZE="4096"
 display_help()
 {
     cat <<EOF
-Usage: ./$0 OPTIONS <hostname-without-domain>
+Usage: ./$0 OPTIONS <HOSTNAME-without-domain>
 
 $0 is a light wrapper for openssl (just like EasyRSA) for simple and generic
 Usage. Choose an action to perform and the fqdn you want to use.
 
 ACTIONS:
-    -h                Display this message
+ -h             Display this message
 
-    -s <HOSTNAME>     Gen and sign certificate and private key for domain <FQDN>
-    -p <HOSTNAME>     Export package for <FQDN> (KEY, CERT, CSR)
-    -c <HOSTNAME>     Check certificate of <FQDN>
+ -s <HOSTNAME>  Gen and sign certificate and private key for domain <HOSTNAME>
+ -p <HOSTNAME>  Export package for <HOSTNAME> (KEY, CERT, CSR)
+ -c <HOSTNAME>  Check certificate of <HOSTNAME>
 
-    -r <HOSTNAME>     Revoke certificate of <FQDN>
-    -u                Update revocation list
+ -r <HOSTNAME>  Revoke certificate of <HOSTNAME>
+ -u             Update revocation list
 
+Don't put the domain extension in your HOSTNAME (no FQDN)
 EOF
     exit 0
 }

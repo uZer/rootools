@@ -1,0 +1,27 @@
+########
+## CA ##
+########
+
+# Tutorial from
+# https://jamielinux.com/articles/2013/08/act-as-your-own-certificate-authority/
+cd /srv/pki-infra.msv
+
+# Private key
+openssl genrsa -aes256 -out private/ca.infra.msv-key.pem 4096
+
+# Make SSL configuration in openssl.cnf
+
+# Public key
+openssl req -new -x509 -days 3650 -key private/ca.infra.msv-key.pem -sha256 -extensions v3_ca -out certs/ca.infra.msv-cert.pem -config ./openssl.cnf
+
+# Create intermediate CA (same method)
+# Sign it with root CA
+openssl ca \
+    -keyfile private/ca.infra.msv-key.pem
+    -cert certs/ca.infra.msv-cert.pem \
+    -extensions v3_ca -notext -md sha256 \
+    -in intermediate/certs/ca-intermediate.infra.msv-csr.pem \
+    -out intermediate/certs/ca-intermediate.infra.msv-cert.pem
+
+# Concatenate both certs from CA and CA-intermediate > ca-chain
+
