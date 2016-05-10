@@ -81,7 +81,7 @@ remove_olddb() {
     # If yes, stop tracking it
     if [ $? -eq 0 ]; then
         echo "* Stop tracking $CERTNAME..."
-        ipa-getcert stop-tracking -n $CERTNAME
+        ipa-getcert stop-tracking -d $NSSPATH -n $CERTNAME
     fi
 
     # If there is a previous db folder, backup it up
