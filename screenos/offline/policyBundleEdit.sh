@@ -1,4 +1,7 @@
-#!/bin/zsh
+#!/bin/bash
+# Build local inventories
+set -euo pipefail
+IFS=$'\n\t '
 #
 # Youenn Piolet
 # <piolet.y@gmail.com>
@@ -33,6 +36,8 @@ order to edit a bundle of policies.
 OPTIONS:
   -h                 Show this message
 
+  -a <src>           Adding source address <src> in policies
+  -b <dst>           Adding dest address <src> in policies
   -s "<old> <new>"   Replace src-address <old> by <new> (don't forget the quotes)
   -d "<old> <new>"   Replace dst-address <old> by <new> (don't forget the quotes)
   -l                 Enable Log
@@ -54,7 +59,7 @@ COMMAND=$@
 if [[ $# -eq 0 ]]; then display_help; fi
 
 # getopts
-while getopts ":hf:i:s:d:p:ln:" OPT; do
+while getopts ":hf:i:s:d:p:ln:a:b:" OPT; do
     case $OPT in
         h)  display_help ;;
 
@@ -120,6 +125,13 @@ while getopts ":hf:i:s:d:p:ln:" OPT; do
             ;;
 
         l)  CHANGE="${CHANGE}set log\n"
+            ;;
+
+        a)
+            CHANGE="${CHANGE}set src-address $OPTARG\n"
+            ;;
+        b)
+            CHANGE="${CHANGE}set dst-address $OPTARG\n"
             ;;
 
         n)  CHANGE="${CHANGE}set name \"$OPTARG\"";;
