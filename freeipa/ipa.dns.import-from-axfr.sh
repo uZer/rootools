@@ -1,5 +1,5 @@
 #!/bin/sh
-# youenn.piolet@mediaserv.com
+# piolet.y@gmail.com
 #
 # Run a dig AXFR on DNS server $1, for zone $2.
 # Filter entries with $3.
