@@ -98,6 +98,7 @@ create_db() {
     cd $NSSPATH
     echo "$PASSWORD" > $PWDFILE
     chmod go-rwx $PWDFILE
+    touch $MODNSS_PASSWD
     chmod 640 $MODNSS_PASSWD
     certutil -N -d $NSSPATH -f $PWDFILE
     chmod g+rw $NSSPATH/*.db
