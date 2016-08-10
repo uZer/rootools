@@ -19,6 +19,7 @@ IFS=$'\n\t '
 
 # Put here your new FreeIPA DNS
 DNS="10.0.0.1"
+DNSHOSTNAME="hostname.of.dns"
 LOG=".conflicts"
 
 # If set to "no", public IP reverse zones won't be managed
@@ -26,7 +27,6 @@ ALLOWPUBLICIP="no"
 
 USELESSNS="list. of. servers. you. dont. want. in. soa."
 AXFRLIST="<ip of servers allowed to AXFR separated by;>"
-AXFRLIST="10.1.11.81;10.1.11.82;10.1.11.83;10.2.11.81;10.2.11.82;10.2.11.83;10.3.11.81;10.3.11.82;10.3.11.83;10.4.11.81;10.4.11.82;10.4.11.83;10.5.11.83;192.168.50.47;192.168.50.41"
 
 ## Print usage
 usage () {
@@ -65,7 +65,7 @@ checkRecord() {
         # Sometimes, there are multiple answers. Here we check only one value.
         __RES=2
         for __i in $__cmd; do
-            if [[ $__i == $_TV ]]; then __RES=1 ; fi
+            if [[ "$__i" == "$_TV" ]]; then __RES=1 ; fi
         done
 
         if [[ $__RES -eq 1 ]]; then
@@ -180,12 +180,12 @@ parseAndAddRecord () {
 
 ## Add list of zones in DNS
 ## Remove useless ns records
+## _ZONELIST=$1
 addZoneList () {
-    _ZONELIST=$1
     IFS=$' '
     for _i in `echo $TOADD`; do
         log_debug "Adding zone $_i..."
-        ipa dnszone-add $_i --dynamic-update=TRUE --allow-transfer="$AXFRLIST" --allow-sync-ptr=TRUE --name-server="fr-1vm-ipa01.infra.msv."
+        ipa dnszone-add $_i --dynamic-update=TRUE --allow-transfer="$AXFRLIST" --allow-sync-ptr=TRUE --name-server="$DNSHOSTNAME"
         for _j in `echo $USELESSNS`; do
             log_debug "Erasing NS $_j..."
             ipa dnsrecord-del --ns-rec="$_j" $_i @
@@ -228,7 +228,7 @@ IFS=$'\n'
 log_debug " ---- the following entries can't be added due to conflict ----" >> $LOG
 for i in `cat $LIST`; do
     IFS=$' '
-    parseAndAddRecord ${i[@]}
+    parseAndAddRecord "${i[@]}"
 done
 
 log_debug "END importing file $LIST" >> $LOG
