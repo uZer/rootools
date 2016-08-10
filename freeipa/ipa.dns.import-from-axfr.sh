@@ -228,7 +228,9 @@ IFS=$'\n'
 log_debug " ---- the following entries can't be added due to conflict ----" >> $LOG
 for i in `cat $LIST`; do
     IFS=$' '
-    parseAndAddRecord "${i[@]}"
+
+    ## BAD Parsing design, TODO: Clean this.
+    parseAndAddRecord ${i[@]}
 done
 
 log_debug "END importing file $LIST" >> $LOG
